@@ -1,0 +1,86 @@
+@font-face{
+  font-family: 'Poster';
+  src: url('./Fonts/poster.ttf') format('truetype');
+}
+
+@font-face{
+  font-family: 'Mufferaw';
+  src: url('./Fonts/comic.ttf') format('truetype');
+}
+
+body{
+	font-family: Poster;
+	font-weight: bold;
+	text-align: center;
+}
+
+#board{
+	width: 400px;
+	height: 400px;
+	border: 10px solid dimgrey;
+	background-color: wheat;
+
+	margin: 0 auto;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#board div{
+	width: 48px;
+	height: 48px;
+	border: 1px solid lightgray;
+
+	font-size: 25px;
+	font-family: Mufferaw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.clicked-tile{
+	background: darkgray;
+}
+
+.t1{
+	color: cyan;
+}
+
+.t2{
+	color: red;
+}
+
+.t3{
+	color: orange;
+}
+
+.t4{
+	color: darkblue;
+}
+
+.t5{
+	color: darkred;
+}
+
+.t6{
+	color: greenyellow;
+}
+
+.t7{
+	color: gainsboro;
+}
+
+.t8{
+	color: orangered;
+}
+
+#flag-button {
+    width: 100px;
+    height: 50px;
+    font-size: 30px;
+    background-color: lightgray;
+    border: none;
+}
+
+#flagged-tile{
+	color: darkslategray;
+}
