@@ -5,21 +5,48 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="./style.css">
-		<script src="./script.js"></script>
 	</head>
 
-	<body>
+	<body onload="startTimer()">	
 		<h1> 
 			Mines: 
 			<span id="mines-count">
 				0
 			</span>
 		</h1>
-
+	    <p>Time: <span id="timer">0:00</span></p>	
 		<div id="board" align="center">
 
 		</div>
 		<br>
-		<button id="flag-button" class=flag-button>flag</button>
+		<button id="flag-button" class=flag-button>flag</button><div id="player-input" style="display: none;">
+            <input type="text" id="player-name" placeholder="Enter your name">
+            <button id="submit-score-button">Submit</button>
+        </div>
+				<script src="./script.js"></script>
+<br>
+		<hr>
+		<p>
+    <strong>Objective:</strong><br>
+    The objective of Minesweeper is to clear the board without detonating any mines. You win the game by revealing all tiles that do not contain mines.<br>
+
+    <strong>Gameplay:</strong><br>
+
+    <strong>Starting the Game:</strong><br>
+    Left-click on any tile to reveal it. If the revealed tile contains a mine, you lose the game.<br>
+
+    <strong>Revealing Tiles:</strong><br>
+    Each revealed tile will display a number indicating the number of mines adjacent to it. Use this information to deduce the location of mines. If a tile has no adjacent mines, it will be blank, and all adjacent tiles will automatically be revealed.<br>
+
+    <strong>Flagging Mines:</strong><br>
+    Click on the "Flag" button to enable flagging mode. In flagging mode, clicking on a tile places a flag.<br><br>
+
+    <strong>Winning the Game:</strong><br>
+    To win the game, reveal all tiles that do not contain mines. Once all safe tiles are revealed, you win!<br><br>
+
+    <strong>Losing the Game:</strong><br>
+    If you reveal a tile containing a mine, the game ends immediately, and you lose. Avoid detonating any mines by carefully revealing tiles and flagging potential mine locations.
+</p>
+
 	</body>
 </html>

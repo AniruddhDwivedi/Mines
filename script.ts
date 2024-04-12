@@ -7,11 +7,41 @@ let mineLocations: any = [];
 
 let clicked = 0;
 let flagged = false;
+let flagCount = 0;
 
 let gameOver = false;
 
+let startTime;
+let timerInterval;
+
 window.onload = () => {
+	startTimer();
 	startGame();
+}
+
+
+function startTimer() {
+    startTime = new Date().getTime();
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer(): void {
+    const currentTime: number = Date.now();
+    const elapsedTime: number = Math.floor((currentTime - startTime) / 1000);
+    const minutes: number = Math.floor(elapsedTime / 60);
+    const seconds: number = elapsedTime % 60;
+    const formattedSeconds: string = seconds < 10 ? `0${seconds}` : `${seconds}`;
+    const timerElement: HTMLElement | null = document.getElementById("timer");
+    if (timerElement) {
+        timerElement.innerText = `${minutes}:${formattedSeconds}`;
+    }
+}
+
+function stopTimer(): void {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
 }
 
 function emplaceMines(){
@@ -78,26 +108,34 @@ function revealTile(){
 		return;
 	}
 
-	if (flagged){
+	if (flagged && flagCount < mineCount){
+		let prev = tile.innerText;
 		tile.innerText = tile.innerText == "" ? "🚩" : "";
-		this.classList.add("flagged-tile");
+		if (prev === "🚩"){
+			flagCount--;
+		}else{flagCount++;}
+		tile.classList.add("flagged-tile");
 	}
 
 
 	console.log(tile.id)
-	if (mineLocations.includes(tile.id)){
+	if (mineLocations.includes(tile.id) && !flagged){
 		//alert("GAMEOVER");
 		gameOver = true;
 		revealMines();
+		stopTimer();
 		return;
 	}
 
 	let currentLoc = tile.id.split(',');
-	isMine(currentLoc[0], currentLoc[1]);
+	isMine(currentLoc[0], currentLoc[1], flagged);
 
 }
 
-function isMine(x, y){
+function isMine(x, y, isflagged){
+	if(isflagged){
+		return;
+	}
 	if (x < 0 || x >= rows || y < 0 || y >= cols){
 		return;
 	}
@@ -128,23 +166,24 @@ function isMine(x, y){
 		board[x][y].classList.add("t" + nearbyMines.toString());
 	}else{
 		//above
-		isMine(x-1,y-1);
-		isMine(x-1,y);
-		isMine(x-1,y+1);
+		isMine(x-1,y-1,flagged);
+		isMine(x-1,y,flagged);
+		isMine(x-1,y+1,flagged);
 
 		//sides
-		isMine(x, y-1);
-		isMine(x, y+1);
+		isMine(x, y-1,flagged);
+		isMine(x, y+1,flagged);
 
 		//below
-		isMine(x+1,y-1);
-		isMine(x+1,y);
-		isMine(x+1,y+1);
+		isMine(x+1,y-1,flagged);
+		isMine(x+1,y,flagged);
+		isMine(x+1,y+1,flagged);
 
 	}
 
 	if (clicked === rows*cols - mineCount){
 		document.getElementById("mines-count")!.innerText = "Cleared";
+		stopTimer();
 		return;
 	}
 }
@@ -173,4 +212,25 @@ function revealMines(){
             }
         }
 	}
+}
+
+document.getElementById("clear-game-button")?.addEventListener("click", function() {
+    stopTimer();
+    document.getElementById("player-input")!.style.display = "block";
+});
+
+document.getElementById("submit-score-button")?.addEventListener("click", function() {
+    const playerNameInput: HTMLInputElement | null = document.getElementById("player-name") as HTMLInputElement;
+    if (!playerNameInput) return;
+    const playerName: string = playerNameInput.value;
+    const time: string = document.getElementById("timer")?.innerText || "0:00"; // Get the formatted time
+    saveScore(playerName, time);
+});
+
+function saveScore(playerName: string, time: string): void {
+    // Create XML data
+    const xmlString: string = `<score><player>${playerName}</player><time>${time}</time></score>`;
+
+    // Send XML data to the server for storage or save it locally
+    console.log("Saving score:", xmlString);
 }

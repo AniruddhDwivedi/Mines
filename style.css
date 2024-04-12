@@ -1,15 +1,15 @@
 @font-face{
-  font-family: 'Poster';
-  src: url('./Fonts/poster.ttf') format('truetype');
+  font-family: 'Mufferaw';
+  src: url('./Fonts/mufferaw.ttf') format('truetype');
 }
 
 @font-face{
-  font-family: 'Mufferaw';
-  src: url('./Fonts/comic.ttf') format('truetype');
+  font-family: 'Finador';
+  src: url('./Fonts/Finador-Regular.ttf') format('truetype');
 }
 
 body{
-	font-family: Poster;
+	font-family: Finador;
 	font-weight: bold;
 	text-align: center;
 }

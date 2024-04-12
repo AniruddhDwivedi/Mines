@@ -5,10 +5,35 @@ var mineCount = 5;
 var mineLocations = [];
 var clicked = 0;
 var flagged = false;
+var flagCount = 0;
 var gameOver = false;
+var startTime;
+var timerInterval;
 window.onload = function () {
+    startTimer();
     startGame();
 };
+function startTimer() {
+    startTime = new Date().getTime();
+    timerInterval = setInterval(updateTimer, 1000);
+}
+function updateTimer() {
+    var currentTime = Date.now();
+    var elapsedTime = Math.floor((currentTime - startTime) / 1000);
+    var minutes = Math.floor(elapsedTime / 60);
+    var seconds = elapsedTime % 60;
+    var formattedSeconds = seconds < 10 ? "0".concat(seconds) : "".concat(seconds);
+    var timerElement = document.getElementById("timer");
+    if (timerElement) {
+        timerElement.innerText = "".concat(minutes, ":").concat(formattedSeconds);
+    }
+}
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
 function emplaceMines() {
     // mineLocations.push("1,1");
     // mineLocations.push("1,2");
@@ -63,25 +88,42 @@ function revealTile() {
     if (gameOver || this.classList.contains("clicked-tile")) {
         return;
     }
-    if (flagged) {
+    if (flagged && flagCount < mineCount) {
+        var prev = tile.innerText;
         tile.innerText = tile.innerText == "" ? "🚩" : "";
-        this.classList.add("flagged-tile");
+        if (prev === "🚩") {
+            flagCount--;
+        }
+        else {
+            flagCount++;
+        }
+        tile.classList.add("flagged-tile");
     }
     console.log(tile.id);
-    if (mineLocations.includes(tile.id)) {
+    if (mineLocations.includes(tile.id) && !flagged) {
         //alert("GAMEOVER");
         gameOver = true;
         revealMines();
+        stopTimer();
         return;
     }
     var currentLoc = tile.id.split(',');
-    isMine(currentLoc[0], currentLoc[1]);
+    isMine(currentLoc[0], currentLoc[1], flagged);
 }
-function isMine(x, y) {
+function isMine(x, y, isflagged) {
+    if (isflagged) {
+        return;
+    }
     if (x < 0 || x >= rows || y < 0 || y >= cols) {
+        console.log(`Invalid coordinates: (${x}, ${y})`);
         return;
     }
     if (board[x][y].classList.contains("clicked-tile")) {
+        console.log(`Tile (${x}, ${y}) already clicked.`);
+        return;
+    }
+    if (board[x][y] === undefined) {
+        console.log(`Tile (${x}, ${y}) is undefined.`);
         return;
     }
     board[x][y].classList.add("clicked-tile");
@@ -104,19 +146,20 @@ function isMine(x, y) {
     }
     else {
         //above
-        isMine(x - 1, y - 1);
-        isMine(x - 1, y);
-        isMine(x - 1, y + 1);
+        isMine(x - 1, y - 1, flagged);
+        isMine(x - 1, y, flagged);
+        isMine(x - 1, y + 1, flagged);
         //sides
-        isMine(x, y - 1);
-        isMine(x, y + 1);
+        isMine(x, y - 1, flagged);
+        isMine(x, y + 1, flagged);
         //below
-        isMine(x + 1, y - 1);
-        isMine(x + 1, y);
-        isMine(x + 1, y + 1);
+        isMine(x + 1, y - 1, flagged);
+        isMine(x + 1, y, flagged);
+        isMine(x + 1, y + 1, flagged);
     }
     if (clicked === rows * cols - mineCount) {
         document.getElementById("mines-count").innerText = "Cleared";
+        stopTimer();
         return;
     }
 }
