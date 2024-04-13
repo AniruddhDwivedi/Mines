@@ -156,7 +156,7 @@ function isMine(x, y, isflagged) {
         isMine(x + 1, y, flagged);
         isMine(x + 1, y + 1, flagged);
     }
-    if (clicked === rows * cols - mineCount && flagCount === mineCount) {
+    if (clicked === rows * cols - mineCount) {
         document.getElementById("mines-count").innerText = "Cleared";
         stopTimer();
         displayInputBox();
