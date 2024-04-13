@@ -20,7 +20,7 @@ body{
 	border: 10px solid dimgrey;
 	background-color: wheat;
 
-	margin: 0 auto;
+	margin: auto;
 	display: flex;
 	flex-wrap: wrap;
 }

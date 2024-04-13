@@ -85,7 +85,7 @@ function setFlags() {
 }
 function revealTile() {
     var tile = this;
-    if (gameOver || this.classList.contains("clicked-tile")) {
+    if (gameOver || this.classList.contains("clicked-tile") || tile.innerText == "🚩") {
         return;
     }
     if (flagged && flagCount < mineCount) {
@@ -99,7 +99,6 @@ function revealTile() {
         }
         tile.classList.add("flagged-tile");
     }
-    console.log(tile.id);
     if (mineLocations.includes(tile.id) && !flagged) {
         //alert("GAMEOVER");
         gameOver = true;
@@ -115,15 +114,15 @@ function isMine(x, y, isflagged) {
         return;
     }
     if (x < 0 || x >= rows || y < 0 || y >= cols) {
-        console.log(`Invalid coordinates: (${x}, ${y})`);
+        console.log("Invalid coordinates: (".concat(x, ", ").concat(y, ")"));
+        return;
+    }
+    if (!board[x] || !board[x][y]) {
+        console.log("Tile (".concat(x, ", ").concat(y, ") is undefined."));
         return;
     }
     if (board[x][y].classList.contains("clicked-tile")) {
-        console.log(`Tile (${x}, ${y}) already clicked.`);
-        return;
-    }
-    if (board[x][y] === undefined) {
-        console.log(`Tile (${x}, ${y}) is undefined.`);
+        console.log("Tile (".concat(x, ", ").concat(y, ") already clicked."));
         return;
     }
     board[x][y].classList.add("clicked-tile");
@@ -157,9 +156,10 @@ function isMine(x, y, isflagged) {
         isMine(x + 1, y, flagged);
         isMine(x + 1, y + 1, flagged);
     }
-    if (clicked === rows * cols - mineCount) {
+    if (clicked === rows * cols - mineCount && flagCount === mineCount) {
         document.getElementById("mines-count").innerText = "Cleared";
         stopTimer();
+        displayInputBox();
         return;
     }
 }
@@ -185,3 +185,46 @@ function revealMines() {
         }
     }
 }
+function displayInputBox() {
+    var playerInput = document.getElementById("player-input");
+    if (playerInput) {
+        playerInput.style.display = "block";
+    }
+    document.getElementById("submit-score-button").addEventListener("click", function () {
+        var _a;
+        var playerNameInput = document.getElementById("player-name");
+        if (!playerNameInput)
+            return;
+        var playerName = playerNameInput.value;
+        var time = ((_a = document.getElementById("timer")) === null || _a === void 0 ? void 0 : _a.innerText) || "0:00"; // Get the formatted time
+        saveScore(playerName, time);
+    });
+}
+function saveScore(playerName, time) {
+    // Create XML data
+    var xmlString = "<score><player>".concat(playerName, "</player><time>").concat(time, "</time></score>");
+    // Send XML data to the server for storage or save it locally
+    console.log("Saving score:", xmlString);
+}
+function getLeaderBoard(file) {
+    var reader = new FileReader();
+    reader.onload = function (event) {
+        if (event.target && event.target.result) {
+            var xmlString = event.target.result;
+            var parser = new DOMParser();
+            var xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            // Now you can work with the XML document (xmlDoc)
+            console.log(xmlDoc);
+        }
+    };
+    reader.readAsText(file);
+}
+// Example usage
+// const inputFile = document.getElementById("input-file") as HTMLInputElement;
+// inputFile.addEventListener("change", function(event) {
+//     const files = event.target?.files;
+//     if (files && files.length > 0) {
+//         const selectedFile = files[0];
+//         getLeaderBoard(selectedFile);
+//     }
+// });

@@ -104,7 +104,7 @@ function setFlags(){
 function revealTile(){
 	let tile = this;
 
-	if (gameOver || this.classList.contains("clicked-tile")){
+	if (gameOver || this.classList.contains("clicked-tile") || tile.innerText == "🚩"){
 		return;
 	}
 
@@ -117,8 +117,6 @@ function revealTile(){
 		tile.classList.add("flagged-tile");
 	}
 
-
-	console.log(tile.id)
 	if (mineLocations.includes(tile.id) && !flagged){
 		//alert("GAMEOVER");
 		gameOver = true;
@@ -133,20 +131,24 @@ function revealTile(){
 }
 
 function isMine(x, y, isflagged){
-	if(isflagged){
-		return;
-	}
-	if (x < 0 || x >= rows || y < 0 || y >= cols){
-		return;
-	}
-	if (board[x][y].classList.contains("clicked-tile")){
-		return;
-	}
-
-	board[x][y].classList.add("clicked-tile");
-	clicked += 1;
-
-	let nearbyMines = 0;
+    if (isflagged) {
+        return;
+    }
+    if (x < 0 || x >= rows || y < 0 || y >= cols) {
+        console.log(`Invalid coordinates: (${x}, ${y})`);
+        return;
+    }
+    if (!board[x] || !board[x][y]) {
+        console.log(`Tile (${x}, ${y}) is undefined.`);
+        return;
+    }
+    if (board[x][y].classList.contains("clicked-tile")) {
+        console.log(`Tile (${x}, ${y}) already clicked.`);
+        return;
+    }
+    board[x][y].classList.add("clicked-tile");
+    clicked += 1;
+    var nearbyMines = 0;
 	//above
 	nearbyMines += checkTile(x-1, y-1);
 	nearbyMines += checkTile(x-1, y);
@@ -181,9 +183,10 @@ function isMine(x, y, isflagged){
 
 	}
 
-	if (clicked === rows*cols - mineCount){
+	if (clicked === rows*cols - mineCount && flagCount === mineCount){
 		document.getElementById("mines-count")!.innerText = "Cleared";
 		stopTimer();
+		displayInputBox();
 		return;
 	}
 }
@@ -214,23 +217,51 @@ function revealMines(){
 	}
 }
 
-document.getElementById("clear-game-button")?.addEventListener("click", function() {
-    stopTimer();
-    document.getElementById("player-input")!.style.display = "block";
-});
+function displayInputBox() {
+    let playerInput = document.getElementById("player-input");
+    if (playerInput) {
+        playerInput.style.display = "block";
+    }
+    document.getElementById("submit-score-button")!.addEventListener("click", function() {
+		const playerNameInput: HTMLInputElement | null = document.getElementById("player-name") as HTMLInputElement;
+		if (!playerNameInput) return;
+		const playerName: string = playerNameInput.value;
+		const time: string = document.getElementById("timer")?.innerText || "0:00"; // Get the formatted time
+		saveScore(playerName, time);
+	});
+}
 
-document.getElementById("submit-score-button")?.addEventListener("click", function() {
-    const playerNameInput: HTMLInputElement | null = document.getElementById("player-name") as HTMLInputElement;
-    if (!playerNameInput) return;
-    const playerName: string = playerNameInput.value;
-    const time: string = document.getElementById("timer")?.innerText || "0:00"; // Get the formatted time
-    saveScore(playerName, time);
-});
-
-function saveScore(playerName: string, time: string): void {
+function saveScore(playerName , time: string): void {
     // Create XML data
     const xmlString: string = `<score><player>${playerName}</player><time>${time}</time></score>`;
 
     // Send XML data to the server for storage or save it locally
     console.log("Saving score:", xmlString);
+}	
+
+function getLeaderBoard(file: File) {
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        if (event.target && event.target.result) {
+            const xmlString = event.target.result as string;
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            
+            // Now you can work with the XML document (xmlDoc)
+            console.log(xmlDoc);
+        }
+    };
+
+    reader.readAsText(file);
 }
+
+// Example usage
+// const inputFile = document.getElementById("input-file") as HTMLInputElement;
+// inputFile.addEventListener("change", function(event) {
+//     const files = event.target?.files;
+//     if (files && files.length > 0) {
+//         const selectedFile = files[0];
+//         getLeaderBoard(selectedFile);
+//     }
+// });
